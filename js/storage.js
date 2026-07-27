@@ -1,7 +1,8 @@
 (function (App) {
   "use strict";
 
-  var STORAGE_KEY = "relay-circuit-prototype-v1";
+  var STORAGE_KEY = "relaylab-project-v2";
+  var LEGACY_STORAGE_KEY = "relay-circuit-prototype-v1";
 
   /** Zapisuje projekt w pamięci lokalnej przeglądarki. */
   App.saveProject = function saveProject(project) {
@@ -10,7 +11,7 @@
 
   /** Wczytuje ostatni zapis; zwraca null, jeśli zapis nie istnieje. */
   App.loadProject = function loadProject() {
-    var data = localStorage.getItem(STORAGE_KEY);
+    var data = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
     return data ? App.normalizeProject(JSON.parse(data)) : null;
   };
 

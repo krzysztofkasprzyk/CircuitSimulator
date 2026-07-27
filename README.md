@@ -1,70 +1,72 @@
-# Symulator obwodów przekaźnikowych — prototyp
+# RelayLab — symulator obwodów przekaźnikowych
 
-Prototyp działa całkowicie offline i nie wymaga instalacji ani połączenia z internetem.
+RelayLab jest działającym offline, przeglądarkowym edytorem i dyskretnym symulatorem obwodów sterowniczych. Interfejs ma biały arkusz, czarne symbole i przewody oraz czerwone oznaczenie wyłącznie aktywnej drogi prądu.
 
-## Wersja online
-
-Po włączeniu GitHub Pages aplikacja jest dostępna pod adresem:
-
-**https://krzysztofkasprzyk.github.io/CircuitSimulator/**
+Szczegółowe pokrycie specyfikacji i przyjęte znaczenie funkcji opisuje [macierz wymagań](DOKUMENTACJA_WYMAGAN.md).
 
 ## Uruchomienie
 
-1. Otwórz folder projektu.
-2. Kliknij dwukrotnie `index.html` albo `URUCHOM_PROTOTYP.bat`.
-3. Program otworzy się w domyślnej przeglądarce.
+Otwórz `index.html` w aktualnym Edge, Chrome albo Firefox. W Windows można też użyć `URUCHOM_RELAYLAB.bat`. Program nie wymaga serwera, instalacji pakietów ani połączenia z internetem.
 
-Najlepiej używać aktualnej wersji Edge, Chrome lub Firefox.
+Instrukcja przekazywana klientowi: [Instrukcja_RelayLab.docx](docs/Instrukcja_RelayLab.docx).
 
-## Co zawiera prototyp
+## Zakres funkcjonalny
 
-- biały arkusz z czarnymi elementami i czerwonym oznaczeniem aktywnych obwodów;
-- dwa przykładowe arkusze przełączane zakładkami;
-- łączniki przenoszące zasilanie między arkuszami przez wspólną literę;
-- zasilanie `+`, powrót `−`, przyciski chwilowe i stabilne;
-- zestyki zwierne i rozwierne sterowane nazwą cewki;
-- cewkę, lampę/LED, diodę, transformator i łącznik arkuszy;
-- przeciąganie elementów po siatce i rysowanie przewodów między zaciskami;
-- prosty pulpit sterowania generowany z przycisków umieszczonych na schematach;
-- symulację przepalonej żarówki;
-- lokalny zapis, eksport i import projektu JSON.
+- dowolna liczba arkuszy w zakładkach, zmiana nazwy dwuklikiem i bezpieczne usuwanie arkusza;
+- łącznik międzyarkuszowy: okrąg z literą, globalnie łączący punkty o tym samym oznaczeniu;
+- cztery odmiany zestyków: czynny/bierny oraz zwierny/rozwierny;
+- cewki zwyczajne, remanencyjne, TON, TOF i impulsowe;
+- cewki pomocnicze zwyczajne i TOF;
+- cewki kontroli światła: zwyczajna, z mostkiem i TOF;
+- transformator z oddzielnym uzwojeniem pierwotnym i wtórnym;
+- żarówka lub LED, w tym symulacja przepalenia;
+- kierunkowa dioda prostownicza z opisem anody A i katody K;
+- zasilanie `+` jako strzałka i powrót/bezpiecznik jako prostokąt;
+- przyciski wciskane, wyciągane, stabilne i przełączniki trójpozycyjne z dwoma niezależnymi torami;
+- automatyczne przerywane sprzężenie mechaniczne pionowego szeregu zestyków tego samego przekaźnika;
+- animowana zmiana położenia zestyków;
+- panel operatorski, wyszukiwarka biblioteki i kontekstowy panel właściwości;
+- autozapis w przeglądarce oraz import/eksport przenośnego projektu JSON.
 
-## Obsługa
+## Podstawowa obsługa
 
-- Dodawanie: wybierz element z lewej biblioteki.
-- Przesuwanie: przeciągnij element w trybie projektowania.
-- Łączenie: kliknij zacisk jednego elementu, a następnie zacisk drugiego.
-- Usuwanie: zaznacz element lub przewód i użyj przycisku „Usuń zaznaczenie” albo klawisza Delete.
-- Symulacja: wybierz przycisk „Symulacja” w górnym pasku i używaj pulpitu po prawej stronie.
-- Zmiana nazwy arkusza: kliknij dwukrotnie jego zakładkę.
+1. Wyszukaj element po lewej i kliknij go, aby umieścić w pierwszym wolnym miejscu aktywnego arkusza.
+2. Przeciągnij element po siatce. Kliknij dwa zaciski kolejno, aby narysować przewód.
+3. Ustaw oznaczenie funkcjonalne, np. `K1`. Cewka oraz zestyki z tym samym oznaczeniem działają wspólnie.
+4. Dla lampy wpisanie oznaczenia cewki kontroli światła powoduje, że lampa przewodzi tylko przy aktywnej cewce o tej nazwie.
+5. Włącz `Symulację` i steruj przyciskami z prawego pulpitu. `Reset stanów` zeruje elementy operatorskie, przekaźniki remanencyjne i impulsowe.
 
-## Struktura kodu
+## Model techniczny
 
-- `js/catalog.js` — katalog elementów i ich zacisków;
-- `js/model.js` — model projektu i przykładowy obwód;
-- `js/simulator.js` — grafowy silnik propagacji zasilania i przekaźników;
-- `js/symbols.js` — symbole SVG;
-- `js/editor.js` — edycja arkusza, przewody i przeciąganie;
-- `js/storage.js` — zapis lokalny oraz import/eksport;
-- `js/app.js` — połączenie interfejsu z edytorem i symulatorem;
-- `css/app.css` — wygląd aplikacji.
+Silnik rozwiązuje graf przewodzenia do stanu stabilnego i obsługuje elementy zależne od czasu. Transformator nie zwiera uzwojeń: zasilone pierwotne uaktywnia odseparowane źródło po stronie wtórnej. Dioda przewodzi wyłącznie A→K. Przepalona lampa tworzy przerwę.
 
-Kod nie korzysta z zewnętrznych bibliotek, dlatego po skopiowaniu folderu nadal działa offline.
+To jest symulator logiki obwodów przekaźnikowych, a nie solver SPICE. Nie wylicza napięć, prądów, mocy, spadków napięcia, impedancji, nagrzewania ani parametrów ochronnych. Nie zastępuje projektu wykonawczego, doboru zabezpieczeń ani weryfikacji bezpieczeństwa przez uprawnionego projektanta.
 
-## Praca z repozytorium
+Nazewnictwo i rodziny symboli są oparte na zakresie oficjalnej bazy [IEC 60617](https://library.iec.ch/iec60617). Szczegółowe symbole normatywne wymagają licencjonowanego dostępu do bazy IEC; implementacja używa własnych, uproszczonych rysunków funkcjonalnych. Układ interfejsu czerpie ze sprawdzonego wzorca edytorów schematów: biblioteka/projekt po lewej, arkusz pośrodku, właściwości po prawej, znanego m.in. z [KiCad Schematic Editor](https://docs.kicad.org/master/en/eeschema/eeschema.html) i narzędzi symulacyjnych.
 
-Główna gałąź projektu to `main`. Każde wysłanie nowego commita na tę gałąź automatycznie uruchamia publikację GitHub Pages zdefiniowaną w `.github/workflows/pages.yml`.
+## Testy
 
-Typowy cykl dalszej pracy:
+Testy silnika:
 
-```text
-git add .
-git commit -m "Krótki opis zmiany"
-git push
+```powershell
+node tests/simulator.test.js
 ```
 
-Do repozytorium celowo nie trafiają duże pliki z analizy filmu ani lokalne narzędzia FFmpeg.
+Test dymny interfejsu wymaga Playwright i lokalnej przeglądarki Edge:
 
-## Ograniczenia pierwszego prototypu
+```powershell
+node tests/ui-smoke.js
+```
 
-Pierwsza wersja symuluje dyskretny stan zasilony/niezasilony. Nie oblicza napięcia, natężenia ani parametrów transformatora. Cewki czasowe, remanencyjne i impulsowe oraz rozbudowany edytor pulpitu kolejowego są przewidziane na kolejne etapy.
+Testy obejmują m.in. podtrzymanie przekaźnika, blokadę, TON, pamięć impulsową, separowany transformator, dwa tory przełącznika 3-pozycyjnego, filtrowanie biblioteki i przejście do symulacji.
+
+## Struktura
+
+- `js/catalog.js` — biblioteka elementów i zacisków;
+- `js/model.js` — model projektu oraz migracja plików v1;
+- `js/simulator.js` — graf przewodzenia, czas, pamięć i transformator;
+- `js/symbols.js` — rysunki SVG i animacje;
+- `js/editor.js` — arkusz, przewody, przeciąganie i sprzężenia mechaniczne;
+- `js/app.js` — interfejs, pulpit, właściwości i cykl symulacji;
+- `js/storage.js` — autozapis oraz import/eksport;
+- `css/app.css` — kompletna szata graficzna.

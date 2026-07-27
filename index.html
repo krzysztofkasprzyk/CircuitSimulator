@@ -3,120 +3,99 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Symulator obwodów przekaźnikowych — prototyp</title>
+  <meta name="theme-color" content="#20242a">
+  <title>RelayLab — projektowanie i symulacja obwodów przekaźnikowych</title>
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
   <header class="app-header">
-    <div>
-      <h1>Symulator obwodów przekaźnikowych</h1>
-      <p>Prototyp offline</p>
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <div><h1>RelayLab</h1><p>Projektowanie i symulacja obwodów przekaźnikowych</p></div>
     </div>
     <div class="header-actions">
-      <button id="edit-mode" class="mode-button active" type="button">Projektowanie</button>
-      <button id="simulate-mode" class="mode-button" type="button">Symulacja</button>
+      <div class="mode-switch" aria-label="Tryb pracy">
+        <button id="edit-mode" class="mode-button active" type="button">Projektowanie</button>
+        <button id="simulate-mode" class="mode-button" type="button">▶ Symulacja</button>
+      </div>
+      <button id="reset-simulation" type="button" title="Wyzeruj przekaźniki remanencyjne i impulsowe">Reset stanów</button>
       <button id="save-project" type="button">Zapisz</button>
-      <button id="export-project" type="button">Eksportuj</button>
-      <label class="file-button">Importuj<input id="import-project" type="file" accept="application/json,.json"></label>
+      <button id="export-project" type="button">Eksport JSON</button>
+      <label class="file-button">Import JSON<input id="import-project" type="file" accept="application/json,.json"></label>
+      <a class="file-button" href="docs/Instrukcja_RelayLab.docx" download>Instrukcja</a>
     </div>
   </header>
 
   <main class="app-layout">
     <aside class="sidebar palette-panel" aria-label="Biblioteka elementów">
-      <h2>Elementy</h2>
-      <p class="hint">Kliknij element, aby dodać go do aktywnego arkusza.</p>
+      <div class="panel-title"><div><h2>Biblioteka</h2><p>Elementy obwodu</p></div><span id="palette-count" class="count"></span></div>
+      <label class="search-box"><span>⌕</span><input id="palette-search" type="search" placeholder="Szukaj elementu…"></label>
       <div id="palette" class="palette"></div>
-
-      <section class="help-box">
-        <h3>Jak połączyć?</h3>
-        <ol>
-          <li>Kliknij zacisk elementu.</li>
-          <li>Kliknij zacisk drugiego elementu.</li>
-          <li>Przełącz na „Symulacja”.</li>
-        </ol>
-      </section>
     </aside>
 
     <section class="workspace" aria-label="Obszar projektu">
       <nav class="sheet-tabs" aria-label="Arkusze obwodu">
         <div id="tabs" class="tabs"></div>
-        <button id="add-sheet" class="add-sheet" type="button" aria-label="Dodaj arkusz">＋</button>
+        <button id="add-sheet" class="add-sheet" type="button" aria-label="Dodaj arkusz" title="Dodaj arkusz">＋</button>
       </nav>
 
       <div class="canvas-toolbar">
-        <span id="mode-status" class="status-badge">Tryb projektowania</span>
-        <span id="simulation-status">Obwód oczekuje na symulację</span>
-        <button id="fit-example" type="button">Wczytaj przykład</button>
+        <span id="mode-status" class="status-badge"><i></i> Projektowanie</span>
+        <span id="simulation-status">Obwód gotowy do edycji</span>
+        <span class="toolbar-spacer"></span>
+        <button id="fit-example" type="button">Projekt przykładowy</button>
         <button id="clear-sheet" type="button">Wyczyść arkusz</button>
       </div>
 
       <div id="canvas-scroller" class="canvas-scroller">
         <svg id="circuit-canvas" class="circuit-canvas" viewBox="0 0 1400 760" role="img" aria-label="Edytowalny schemat obwodu">
           <defs>
-            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#edf0f3" stroke-width="1"/>
-            </pattern>
+            <pattern id="minor-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#eef1f4" stroke-width="1"/></pattern>
+            <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><rect width="100" height="100" fill="url(#minor-grid)"/><path d="M 100 0 L 0 0 0 100" fill="none" stroke="#dfe4e8" stroke-width="1"/></pattern>
           </defs>
           <rect class="grid-background" width="1400" height="760" fill="url(#grid)"/>
-          <g id="wire-layer"></g>
-          <g id="component-layer"></g>
+          <g id="wire-layer"></g><g id="component-layer"></g>
         </svg>
       </div>
     </section>
 
     <aside class="sidebar inspector-panel" aria-label="Właściwości i sterowanie">
       <section id="control-panel">
-        <h2>Pulpit sterowania</h2>
-        <p class="hint">Przyciski z całego projektu pojawią się tutaj.</p>
+        <div class="panel-title"><div><h2>Pulpit sterowania</h2><p>Elementy operatorskie</p></div></div>
         <div id="panel-controls" class="panel-controls"></div>
       </section>
 
       <section id="inspector">
-        <h2>Właściwości</h2>
-        <p id="empty-selection" class="hint">Wybierz element lub przewód.</p>
+        <div class="panel-title"><div><h2>Właściwości</h2><p>Zaznaczony element</p></div></div>
+        <p id="empty-selection" class="empty-state">Kliknij element lub przewód na arkuszu, aby edytować jego parametry.</p>
         <form id="property-form" hidden>
-          <label>Nazwa
-            <input id="property-label" type="text" maxlength="24">
-          </label>
-          <label id="relay-field">Nazwa przekaźnika
-            <input id="property-relay" type="text" maxlength="16" placeholder="np. K1">
-          </label>
-          <label id="tag-field">Łącznik arkuszy
-            <input id="property-tag" type="text" maxlength="8" placeholder="np. X">
-          </label>
-          <label id="button-field">Rodzaj przycisku
-            <select id="property-button-type">
-              <option value="momentary">chwilowy</option>
-              <option value="stable">stabilny</option>
-            </select>
-          </label>
-          <label id="burned-field" class="checkbox-label">
-            <input id="property-burned" type="checkbox"> Przepalona żarówka
-          </label>
+          <label>Nazwa elementu<input id="property-label" type="text" maxlength="40"></label>
+          <label id="relay-field">Oznaczenie funkcjonalne<input id="property-relay" type="text" maxlength="16" placeholder="np. K1, UKS1"></label>
+          <label id="tag-field">Litera łącznika<input id="property-tag" type="text" maxlength="8" placeholder="np. X"></label>
+          <label id="button-field">Rodzaj sterowania<select id="property-button-type">
+            <option value="push">wciskany (chwilowy)</option><option value="pull">wyciągany (chwilowy)</option>
+            <option value="stable">stabilny</option><option value="threePosition">3-pozycyjny (− / 0 / +)</option>
+          </select></label>
+          <label id="delay-field">Czas zwłoki [ms]<input id="property-delay" type="number" min="0" max="600000" step="100"></label>
+          <label id="lamp-kind-field">Rodzaj źródła światła<select id="property-lamp-kind"><option value="lamp">żarówka</option><option value="led">LED</option></select></label>
+          <label id="burned-field" class="checkbox-label"><input id="property-burned" type="checkbox"> Symuluj przepalenie</label>
+          <div id="component-description" class="component-description"></div>
           <button id="delete-selection" class="danger-button" type="button">Usuń zaznaczenie</button>
         </form>
       </section>
 
       <section class="legend">
-        <h2>Legenda</h2>
-        <p><span class="legend-line inactive"></span> brak zasilania</p>
-        <p><span class="legend-line powered"></span> aktywny obwód</p>
-        <p><span class="legend-dot"></span> wzbudzona cewka / świecąca lampa</p>
+        <h2>Stan obwodu</h2>
+        <p><span class="legend-line inactive"></span> niezasilony</p>
+        <p><span class="legend-line powered"></span> droga prądu</p>
+        <p><span class="legend-link"></span> sprzężenie mechaniczne</p>
       </section>
     </aside>
   </main>
 
-  <footer class="app-footer">
-    <span id="message">Gotowy.</span>
-    <span>Projekt jest zapisywany lokalnie w przeglądarce.</span>
-  </footer>
+  <footer class="app-footer"><span id="message">Gotowy.</span><span>Autozapis lokalny · format projektu v2</span></footer>
 
-  <script src="js/catalog.js"></script>
-  <script src="js/model.js"></script>
-  <script src="js/simulator.js"></script>
-  <script src="js/symbols.js"></script>
-  <script src="js/storage.js"></script>
-  <script src="js/editor.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/catalog.js"></script><script src="js/model.js"></script><script src="js/simulator.js"></script>
+  <script src="js/symbols.js"></script><script src="js/storage.js"></script><script src="js/editor.js"></script><script src="js/app.js"></script>
 </body>
 </html>

@@ -50,8 +50,15 @@
 
   CircuitEditor.prototype.addComponent = function addComponent(type) {
     var sheet = this.activeSheet();
-    var index = sheet.components.length;
-    var component = App.createComponent(type, 130 + (index % 5) * 180, 120 + Math.floor(index / 5) * 120);
+    var spot = null;
+    for (var y = 100; y <= 660 && !spot; y += 100) {
+      for (var x = 120; x <= 1280; x += 160) {
+        var occupied = sheet.components.some(function (item) { return Math.abs(item.x - x) < 120 && Math.abs(item.y - y) < 75; });
+        if (!occupied) { spot = { x: x, y: y }; break; }
+      }
+    }
+    spot = spot || { x: 700, y: 380 };
+    var component = App.createComponent(type, spot.x, spot.y);
     sheet.components.push(component);
     this.select({ kind: "component", id: component.id });
     this.onChange("Dodano: " + App.catalog[type].name);
@@ -156,18 +163,20 @@
       "class": "component" + (powered ? " powered" : "") + (selected ? " selected" : "") + (component.burned ? " burned" : ""),
       "data-component-id": component.id
     });
-    group.appendChild(App.svgElement("rect", { x: -55, y: -42, width: 110, height: 82, rx: 5, "class": "selection-box" }));
+    group.appendChild(App.svgElement("rect", { x: -55, y: -46, width: 110, height: 92, rx: 5, "class": "selection-box" }));
     App.drawSymbol(group, component, this.simulation);
 
-    var label = App.svgElement("text", { x: 0, y: component.type === "connector" ? 52 : 31, "class": "component-label" });
+    var label = App.svgElement("text", { x: 0, y: component.type === "connector" ? 53 : 34, "class": "component-label" });
     label.textContent = component.label;
     group.appendChild(label);
-    var kind = App.svgElement("text", { x: 0, y: component.type === "connector" ? 65 : 43, "class": "component-kind" });
-    kind.textContent = App.catalog[component.type].name;
-    group.appendChild(kind);
+    if ((App.isContactType(component.type) || App.isCoilType(component.type) || (component.type === "lamp" && component.relay)) && component.relay) {
+      var relayTag = App.svgElement("text", { x: 0, y: -31, "class": "relay-tag" });
+      relayTag.textContent = component.relay;
+      group.appendChild(relayTag);
+    }
 
     var self = this;
-    App.catalog[component.type].terminals.forEach(function (terminal) {
+    App.terminalsFor(component).forEach(function (terminal) {
       var pending = self.pendingTerminal && self.pendingTerminal.componentId === component.id && self.pendingTerminal.terminalId === terminal.id;
       var node = App.svgElement("circle", { cx: terminal.x, cy: terminal.y, r: 5, "class": "terminal" + (pending ? " pending" : "") });
       node.addEventListener("pointerdown", function (event) { self.handleTerminal(event, component, terminal.id); });
@@ -186,6 +195,31 @@
     this.componentLayer.appendChild(group);
   };
 
+  /* Łącznik mechaniczny jest tworzony automatycznie dla pionowego szeregu
+     zestyków tego samego przekaźnika. Wszystkie zestyki i tak mają wspólny stan. */
+  CircuitEditor.prototype.renderMechanicalLinks = function renderMechanicalLinks(sheet) {
+    var groups = new Map();
+    sheet.components.filter(function (component) { return App.isContactType(component.type) && component.relay; }).forEach(function (component) {
+      var lane = Math.round(component.x / 40);
+      var key = component.relay + ":" + lane;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(component);
+    });
+    groups.forEach(function (contacts) {
+      if (contacts.length < 2) return;
+      contacts.sort(function (a, b) { return a.y - b.y; });
+      for (var i = 1; i < contacts.length; i += 1) {
+        var a = contacts[i - 1], b = contacts[i];
+        var link = App.svgElement("line", { x1: a.x, y1: a.y + 18, x2: b.x, y2: b.y - 18, "class": "mechanical-link" });
+        this.componentLayer.insertBefore(link, this.componentLayer.firstChild);
+      }
+      for (var j = 1; j < contacts.length; j += 1) {
+        var node = this.componentLayer.querySelector('[data-component-id="' + contacts[j].id + '"] .relay-tag');
+        if (node) node.remove();
+      }
+    }, this);
+  };
+
   CircuitEditor.prototype.render = function render() {
     this.wireLayer.replaceChildren();
     this.componentLayer.replaceChildren();
@@ -194,6 +228,7 @@
     var components = new Map(sheet.components.map(function (component) { return [component.id, component]; }));
     sheet.wires.forEach(function (wire) { this.renderWire(wire, components); }, this);
     sheet.components.forEach(function (component) { this.renderComponent(component); }, this);
+    this.renderMechanicalLinks(sheet);
   };
 
   App.CircuitEditor = CircuitEditor;

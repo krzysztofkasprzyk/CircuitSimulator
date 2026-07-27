@@ -15,13 +15,15 @@
 
   /** Tworzy komponent z bezpiecznymi wartościami domyślnymi. */
   App.createComponent = function createComponent(type, x, y, overrides) {
+    var definition = App.catalog[type];
+    if (!definition) throw new Error("Nieznany typ elementu: " + type);
     var defaults = {
       id: App.uid("component"), type: type, x: x, y: y,
-      label: App.catalog[type].short, relay: type === "coil" ? "K1" : "",
-      tag: type === "connector" ? "X" : "", buttonType: "momentary",
-      state: false, burned: false
+      label: definition.short, relay: (App.isCoilType(type) || App.isContactType(type)) ? "K1" : "",
+      tag: type === "connector" ? "X" : "", buttonType: "push",
+      state: false, burned: false, delayMs: 1000, lampKind: "lamp"
     };
-    return Object.assign(defaults, overrides || {});
+    return Object.assign(defaults, definition.defaults || {}, overrides || {});
   };
 
   /** Tworzy połączenie pomiędzy dwoma zaciskami. */
@@ -78,8 +80,8 @@
     connect(lights, lamp, "right", minus2, "in");
 
     return {
-      version: 1,
-      name: "Prototyp obwodu przekaźnikowego",
+      version: 2,
+      name: "Projekt obwodu przekaźnikowego",
       sheets: [control, lights],
       activeSheetId: control.id
     };
@@ -90,17 +92,23 @@
     if (!project || !Array.isArray(project.sheets) || !project.sheets.length) {
       throw new Error("Plik nie zawiera prawidłowego projektu.");
     }
-    project.version = 1;
+    var importedVersion = Number(project.version) || 1;
+    project.version = 2;
     project.sheets.forEach(function (sheet) {
       sheet.components = Array.isArray(sheet.components) ? sheet.components : [];
       sheet.wires = Array.isArray(sheet.wires) ? sheet.wires : [];
       sheet.components.forEach(function (component) {
-        component.state = Boolean(component.state);
+        if (importedVersion < 2 && component.type === "transformer") component.type = "transformerLegacy";
+        if (!App.catalog[component.type]) throw new Error("Projekt zawiera nieobsługiwany element: " + component.type);
+        component.state = component.buttonType === "threePosition" ? Number(component.state) || 0 : Boolean(component.state);
         component.burned = Boolean(component.burned);
         component.label = component.label || App.catalog[component.type].short;
         component.relay = component.relay || "";
         component.tag = component.tag || "";
-        component.buttonType = component.buttonType || "momentary";
+        if (component.buttonType === "momentary") component.buttonType = "push";
+        component.buttonType = component.buttonType || "push";
+        component.delayMs = Math.max(0, Number(component.delayMs) || 1000);
+        component.lampKind = component.lampKind || "lamp";
       });
     });
     project.activeSheetId = project.sheets.some(function (sheet) { return sheet.id === project.activeSheetId; })

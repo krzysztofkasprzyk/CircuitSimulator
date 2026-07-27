@@ -29,6 +29,7 @@ jobs:
           mkdir _site
           cp index.html _site/
           cp -R css js _site/
+          cp -R docs _site/
           cp przykladowy-uklad-blokady.json _site/
 
       - name: Konfiguracja GitHub Pages
@@ -42,4 +43,3 @@ jobs:
       - name: Publikacja
         id: deployment
         uses: actions/deploy-pages@v4
-
