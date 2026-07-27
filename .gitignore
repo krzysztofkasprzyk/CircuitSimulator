@@ -1,0 +1,14 @@
+# Materiały robocze z analizy filmu — nie są częścią aplikacji.
+ffmpeg-tools/
+video-analysis/
+ffmpeg-release-essentials.zip
+
+# Katalog tworzony chwilowo podczas publikacji GitHub Pages.
+_site/
+
+# Pliki systemowe i edytorów.
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+

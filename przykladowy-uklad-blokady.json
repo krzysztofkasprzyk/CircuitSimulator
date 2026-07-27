@@ -1,0 +1,518 @@
+{
+  "version": 1,
+  "name": "Demonstracyjny układ blokady i sygnalizacji",
+  "activeSheetId": "sheet-control",
+  "sheets": [
+    {
+      "id": "sheet-control",
+      "name": "Pulpit sterowania",
+      "components": [
+        {
+          "id": "ctrl-plus-main",
+          "type": "powerPlus",
+          "x": 120,
+          "y": 180,
+          "label": "+24 V",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "ctrl-main-switch",
+          "type": "button",
+          "x": 330,
+          "y": 180,
+          "label": "ZASILANIE GŁÓWNE",
+          "relay": "",
+          "tag": "",
+          "buttonType": "stable",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "ctrl-link-a",
+          "type": "connector",
+          "x": 560,
+          "y": 180,
+          "label": "do przekaźnika K1",
+          "relay": "",
+          "tag": "A",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "ctrl-plus-permit",
+          "type": "powerPlus",
+          "x": 120,
+          "y": 380,
+          "label": "+24 V",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "ctrl-k1-contact",
+          "type": "contactNO",
+          "x": 310,
+          "y": 380,
+          "label": "blokada K1",
+          "relay": "K1",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "ctrl-permit-switch",
+          "type": "button",
+          "x": 520,
+          "y": 380,
+          "label": "ZEZWOLENIE",
+          "relay": "",
+          "tag": "",
+          "buttonType": "stable",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "ctrl-link-b",
+          "type": "connector",
+          "x": 750,
+          "y": 380,
+          "label": "do przekaźnika K2",
+          "relay": "",
+          "tag": "B",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        }
+      ],
+      "wires": [
+        {
+          "id": "wire-ctrl-1",
+          "from": { "componentId": "ctrl-plus-main", "terminalId": "out" },
+          "to": { "componentId": "ctrl-main-switch", "terminalId": "left" }
+        },
+        {
+          "id": "wire-ctrl-2",
+          "from": { "componentId": "ctrl-main-switch", "terminalId": "right" },
+          "to": { "componentId": "ctrl-link-a", "terminalId": "net" }
+        },
+        {
+          "id": "wire-ctrl-3",
+          "from": { "componentId": "ctrl-plus-permit", "terminalId": "out" },
+          "to": { "componentId": "ctrl-k1-contact", "terminalId": "left" }
+        },
+        {
+          "id": "wire-ctrl-4",
+          "from": { "componentId": "ctrl-k1-contact", "terminalId": "right" },
+          "to": { "componentId": "ctrl-permit-switch", "terminalId": "left" }
+        },
+        {
+          "id": "wire-ctrl-5",
+          "from": { "componentId": "ctrl-permit-switch", "terminalId": "right" },
+          "to": { "componentId": "ctrl-link-b", "terminalId": "net" }
+        }
+      ]
+    },
+    {
+      "id": "sheet-relays",
+      "name": "Przekaźniki",
+      "components": [
+        {
+          "id": "relay-link-a",
+          "type": "connector",
+          "x": 120,
+          "y": 180,
+          "label": "z pulpitu",
+          "relay": "",
+          "tag": "A",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "relay-diode-a",
+          "type": "diode",
+          "x": 310,
+          "y": 180,
+          "label": "D1",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "relay-coil-k1",
+          "type": "coil",
+          "x": 500,
+          "y": 180,
+          "label": "CEWKA K1",
+          "relay": "K1",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "relay-minus-k1",
+          "type": "powerMinus",
+          "x": 700,
+          "y": 180,
+          "label": "0 V",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "relay-link-b",
+          "type": "connector",
+          "x": 120,
+          "y": 380,
+          "label": "zezwolenie",
+          "relay": "",
+          "tag": "B",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "relay-transformer",
+          "type": "transformer",
+          "x": 310,
+          "y": 380,
+          "label": "TR1",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "relay-coil-k2",
+          "type": "coil",
+          "x": 500,
+          "y": 380,
+          "label": "CEWKA K2",
+          "relay": "K2",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "relay-minus-k2",
+          "type": "powerMinus",
+          "x": 700,
+          "y": 380,
+          "label": "0 V",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "relay-plus-control",
+          "type": "powerPlus",
+          "x": 120,
+          "y": 580,
+          "label": "+24 V",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "relay-k2-contact",
+          "type": "contactNO",
+          "x": 310,
+          "y": 580,
+          "label": "kontrola K2",
+          "relay": "K2",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "relay-k2-lamp",
+          "type": "lamp",
+          "x": 500,
+          "y": 580,
+          "label": "K2 AKTYWNY",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "relay-minus-control",
+          "type": "powerMinus",
+          "x": 700,
+          "y": 580,
+          "label": "0 V",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        }
+      ],
+      "wires": [
+        {
+          "id": "wire-relay-1",
+          "from": { "componentId": "relay-link-a", "terminalId": "net" },
+          "to": { "componentId": "relay-diode-a", "terminalId": "left" }
+        },
+        {
+          "id": "wire-relay-2",
+          "from": { "componentId": "relay-diode-a", "terminalId": "right" },
+          "to": { "componentId": "relay-coil-k1", "terminalId": "left" }
+        },
+        {
+          "id": "wire-relay-3",
+          "from": { "componentId": "relay-coil-k1", "terminalId": "right" },
+          "to": { "componentId": "relay-minus-k1", "terminalId": "in" }
+        },
+        {
+          "id": "wire-relay-4",
+          "from": { "componentId": "relay-link-b", "terminalId": "net" },
+          "to": { "componentId": "relay-transformer", "terminalId": "left" }
+        },
+        {
+          "id": "wire-relay-5",
+          "from": { "componentId": "relay-transformer", "terminalId": "right" },
+          "to": { "componentId": "relay-coil-k2", "terminalId": "left" }
+        },
+        {
+          "id": "wire-relay-6",
+          "from": { "componentId": "relay-coil-k2", "terminalId": "right" },
+          "to": { "componentId": "relay-minus-k2", "terminalId": "in" }
+        },
+        {
+          "id": "wire-relay-7",
+          "from": { "componentId": "relay-plus-control", "terminalId": "out" },
+          "to": { "componentId": "relay-k2-contact", "terminalId": "left" }
+        },
+        {
+          "id": "wire-relay-8",
+          "from": { "componentId": "relay-k2-contact", "terminalId": "right" },
+          "to": { "componentId": "relay-k2-lamp", "terminalId": "left" }
+        },
+        {
+          "id": "wire-relay-9",
+          "from": { "componentId": "relay-k2-lamp", "terminalId": "right" },
+          "to": { "componentId": "relay-minus-control", "terminalId": "in" }
+        }
+      ]
+    },
+    {
+      "id": "sheet-signals",
+      "name": "Sygnalizacja",
+      "components": [
+        {
+          "id": "sig-plus-red",
+          "type": "powerPlus",
+          "x": 120,
+          "y": 160,
+          "label": "+24 V",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "sig-k2-nc",
+          "type": "contactNC",
+          "x": 330,
+          "y": 160,
+          "label": "K2 spoczynkowy",
+          "relay": "K2",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "sig-red-lamp",
+          "type": "lamp",
+          "x": 540,
+          "y": 160,
+          "label": "S1 CZERWONE",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "sig-minus-red",
+          "type": "powerMinus",
+          "x": 750,
+          "y": 160,
+          "label": "0 V",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "sig-plus-green",
+          "type": "powerPlus",
+          "x": 120,
+          "y": 360,
+          "label": "+24 V",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "sig-k2-no",
+          "type": "contactNO",
+          "x": 330,
+          "y": 360,
+          "label": "K2 roboczy",
+          "relay": "K2",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "sig-green-lamp",
+          "type": "lamp",
+          "x": 540,
+          "y": 360,
+          "label": "S1 ZIELONE",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "sig-minus-green",
+          "type": "powerMinus",
+          "x": 750,
+          "y": 360,
+          "label": "0 V",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "sig-plus-power",
+          "type": "powerPlus",
+          "x": 120,
+          "y": 560,
+          "label": "+24 V",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "sig-k1-no",
+          "type": "contactNO",
+          "x": 330,
+          "y": 560,
+          "label": "K1 roboczy",
+          "relay": "K1",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "sig-power-lamp",
+          "type": "lamp",
+          "x": 540,
+          "y": 560,
+          "label": "ZASILANIE OK",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        },
+        {
+          "id": "sig-minus-power",
+          "type": "powerMinus",
+          "x": 750,
+          "y": 560,
+          "label": "0 V",
+          "relay": "",
+          "tag": "",
+          "buttonType": "momentary",
+          "state": false,
+          "burned": false
+        }
+      ],
+      "wires": [
+        {
+          "id": "wire-sig-1",
+          "from": { "componentId": "sig-plus-red", "terminalId": "out" },
+          "to": { "componentId": "sig-k2-nc", "terminalId": "left" }
+        },
+        {
+          "id": "wire-sig-2",
+          "from": { "componentId": "sig-k2-nc", "terminalId": "right" },
+          "to": { "componentId": "sig-red-lamp", "terminalId": "left" }
+        },
+        {
+          "id": "wire-sig-3",
+          "from": { "componentId": "sig-red-lamp", "terminalId": "right" },
+          "to": { "componentId": "sig-minus-red", "terminalId": "in" }
+        },
+        {
+          "id": "wire-sig-4",
+          "from": { "componentId": "sig-plus-green", "terminalId": "out" },
+          "to": { "componentId": "sig-k2-no", "terminalId": "left" }
+        },
+        {
+          "id": "wire-sig-5",
+          "from": { "componentId": "sig-k2-no", "terminalId": "right" },
+          "to": { "componentId": "sig-green-lamp", "terminalId": "left" }
+        },
+        {
+          "id": "wire-sig-6",
+          "from": { "componentId": "sig-green-lamp", "terminalId": "right" },
+          "to": { "componentId": "sig-minus-green", "terminalId": "in" }
+        },
+        {
+          "id": "wire-sig-7",
+          "from": { "componentId": "sig-plus-power", "terminalId": "out" },
+          "to": { "componentId": "sig-k1-no", "terminalId": "left" }
+        },
+        {
+          "id": "wire-sig-8",
+          "from": { "componentId": "sig-k1-no", "terminalId": "right" },
+          "to": { "componentId": "sig-power-lamp", "terminalId": "left" }
+        },
+        {
+          "id": "wire-sig-9",
+          "from": { "componentId": "sig-power-lamp", "terminalId": "right" },
+          "to": { "componentId": "sig-minus-power", "terminalId": "in" }
+        }
+      ]
+    }
+  ]
+}
